@@ -65,6 +65,38 @@
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // Scroll progress bar + header shadow on scroll
+  var progress = document.getElementById("scroll-progress");
+  var header = document.querySelector(".site-header");
+  function onScroll() {
+    if (header) header.classList.toggle("is-scrolled", window.scrollY > 8);
+    if (progress) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+      progress.style.width = pct + "%";
+    }
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // Subtle mouse-tilt on the shipment route card (skipped for touch / reduced motion)
+  var routeCard = document.querySelector(".route-card");
+  var prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var isTouch = window.matchMedia && window.matchMedia("(hover: none)").matches;
+  if (routeCard && !prefersReducedMotion && !isTouch) {
+    routeCard.addEventListener("mousemove", function (e) {
+      var rect = routeCard.getBoundingClientRect();
+      var x = (e.clientX - rect.left) / rect.width - 0.5;
+      var y = (e.clientY - rect.top) / rect.height - 0.5;
+      routeCard.style.transform =
+        "perspective(900px) rotateY(" + (x * 6) + "deg) rotateX(" + (y * -6) + "deg) translateY(-2px)";
+    });
+    routeCard.addEventListener("mouseleave", function () {
+      routeCard.style.transform = "";
+    });
+  }
+
   // Contact form (static — no backend yet)
   var form = document.getElementById("contact-form");
   if (form) {
